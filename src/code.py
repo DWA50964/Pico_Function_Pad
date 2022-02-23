@@ -61,7 +61,7 @@ global modeList
 global functionKeys
 
 #List of all modes in use
-modeList = [0,1,2,10]
+modeList = [0,1,2,3,10]
 
 #List of Hidden Function Key Key Codes
 functionKeys = [Keycode.F13, Keycode.F14,Keycode.F15, Keycode.F16, Keycode.F17, Keycode.F18, Keycode.F19,Keycode.F20, Keycode.F21, Keycode.F22]
@@ -82,6 +82,51 @@ def keyPress(key):
     if mode == 2:
         keyboard.press(functionKeys[int(key)-1])
         keyboard.release_all()
+        time.sleep(0.1)
+
+    #Programming Shortcuts
+    if mode == 3:
+        if int(key) == 1:
+            keyboard.press(Keycode.CONTROL, Keycode.C)
+            keyboard.release_all()
+        if int(key) == 2:
+            keyboard.press(Keycode.CONTROL, Keycode.X)
+            keyboard.release_all()
+        if int(key) == 3:
+            keyboard.press(Keycode.CONTROL, Keycode.V)
+            keyboard.release_all()
+
+        if int(key) == 4:
+            keyboard_layout.write("(")
+            keyboard.release_all()
+
+        if int(key) == 5:
+            keyboard_layout.write("()")
+            keyboard.release_all()
+            keyboard.press(Keycode.LEFT_ARROW)
+            keyboard.release_all()
+
+        if int(key) == 6:
+            keyboard_layout.write(")")
+            keyboard.release_all()
+
+        if int(key) == 7:
+            keyboard_layout.write("[")
+            keyboard.release_all()
+
+        if int(key) == 8:
+            keyboard_layout.write("[]")
+            keyboard.release_all()
+            keyboard.press(Keycode.LEFT_ARROW)
+            keyboard.release_all()
+
+        if int(key) == 9:
+            keyboard_layout.write("]")
+            keyboard.release_all()
+
+        if int(key) == 10:
+            keyboard.press(Keycode.CONTROL, Keycode.S)
+            keyboard.release_all()
         time.sleep(0.1)
 
     #Led Test Mode

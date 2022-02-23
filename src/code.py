@@ -59,9 +59,14 @@ for btn in btns_List:
 global mode
 global modeList
 global functionKeys
+global shiftLock
+global ctlLock
+
+shiftLock = False
+ctlLock = False
 
 #List of all modes in use
-modeList = [0,1,2,3,10]
+modeList = [0,1,2,3,4,10]
 
 #List of Hidden Function Key Key Codes
 functionKeys = [Keycode.F13, Keycode.F14,Keycode.F15, Keycode.F16, Keycode.F17, Keycode.F18, Keycode.F19,Keycode.F20, Keycode.F21, Keycode.F22]
@@ -69,6 +74,9 @@ functionKeys = [Keycode.F13, Keycode.F14,Keycode.F15, Keycode.F16, Keycode.F17, 
 def keyPress(key):
     global mode
     global modeList
+    global functionKeys
+    global shiftLock
+    global ctlLock
 
     #Number pad mode
     if mode == 1:
@@ -128,6 +136,36 @@ def keyPress(key):
             keyboard.press(Keycode.CONTROL, Keycode.S)
             keyboard.release_all()
         time.sleep(0.1)
+
+    #Utility mode
+    if mode == 4:
+        if int(key) == 1:
+            if shiftLock:
+                keyboard.release_all()
+                shiftLock = False
+                led4.value = False
+                led5.value = False
+                led6.value = False
+            else:
+                keyboard.press(Keycode.SHIFT)
+                shiftLock = True
+                led4.value = True
+                led5.value = True
+                led6.value = True
+        if int(key) == 2:
+            if ctlLock:
+                keyboard.release_all()
+                ctlLock = False
+                led1.value = False
+                led2.value = False
+                led3.value = False
+            else:
+                keyboard.press(Keycode.CONTROL)
+                ctlLock = True
+                led1.value = True
+                led2.value = True
+                led3.value = True
+
 
     #Led Test Mode
     if mode == 10:

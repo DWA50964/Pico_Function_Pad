@@ -5,6 +5,13 @@ import usb_hid
 from adafruit_hid.keyboard import Keyboard
 from adafruit_hid.keyboard_layout_us import KeyboardLayoutUS
 from adafruit_hid.keycode import Keycode
+import usb_midi
+import adafruit_midi
+from adafruit_midi.note_off import NoteOff
+from adafruit_midi.note_on import NoteOn
+
+midi = adafruit_midi.MIDI(midi_out=usb_midi.ports[1], out_channel=0)
+
 
 #Setup Keyboard HID Device
 time.sleep(1)
@@ -66,7 +73,7 @@ shiftLock = False
 ctlLock = False
 
 #List of all modes in use
-modeList = [0,1,2,3,4,10]
+modeList = [0,1,2,3,4,5,10]
 
 #List of Hidden Function Key Key Codes
 functionKeys = [Keycode.F13, Keycode.F14,Keycode.F15, Keycode.F16, Keycode.F17, Keycode.F18, Keycode.F19,Keycode.F20, Keycode.F21, Keycode.F22]
@@ -165,6 +172,13 @@ def keyPress(key):
                 led1.value = True
                 led2.value = True
                 led3.value = True
+
+    #Midi Mode
+    if mode == 5:
+        midi.send(NoteOn(int(key), 120))
+        time.sleep(0.1)
+        midi.send(NoteOff(int(key), 120))
+        time.sleep(0.1)
 
 
     #Led Test Mode

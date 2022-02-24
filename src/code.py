@@ -1,5 +1,4 @@
 import time
-
 import board
 import digitalio
 import usb_hid
@@ -21,6 +20,7 @@ led5 = digitalio.DigitalInOut(board.GP3)
 led6 = digitalio.DigitalInOut(board.GP26)
 led7 = digitalio.DigitalInOut(board.GP15)
 
+#Assigns all the LEDs as GPIO inputs
 leds_List = [led1, led2, led3, led4, led5, led6, led7]
 for led in leds_List:
     led.direction = digitalio.Direction.OUTPUT
@@ -38,14 +38,20 @@ btn8 = digitalio.DigitalInOut(board.GP13)
 btn9 = digitalio.DigitalInOut(board.GP18)
 btn10 = digitalio.DigitalInOut(board.GP17)
 
+#Sets up mode button as input
 btnFn = digitalio.DigitalInOut(board.GP16)
 btnFn.direction = digitalio.Direction.INPUT
 btnFn.pull = digitalio.Pull.UP
 
+#A dictionary to hold a count of how long each button is held
+btnHold = {}
+
+#Assigns the buttons as GPIO Inputs
 btns_List = [btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9, btn10]
 for btn in btns_List:
     btn.direction = digitalio.Direction.INPUT
     btn.pull = digitalio.Pull.UP
+    btnHold[btns_List.index(btn)] = 0
 
 
 
@@ -53,15 +59,24 @@ for btn in btns_List:
 global mode
 global modeList
 global functionKeys
+global shiftLock
+global ctlLock
+
+shiftLock = False
+ctlLock = False
 
 #List of all modes in use
-modeList = [0,1,2,10]
+modeList = [0,1,2,3,4,10]
 
+#List of Hidden Function Key Key Codes
 functionKeys = [Keycode.F13, Keycode.F14,Keycode.F15, Keycode.F16, Keycode.F17, Keycode.F18, Keycode.F19,Keycode.F20, Keycode.F21, Keycode.F22]
 
 def keyPress(key):
     global mode
     global modeList
+    global functionKeys
+    global shiftLock
+    global ctlLock
 
     #Number pad mode
     if mode == 1:
@@ -76,6 +91,81 @@ def keyPress(key):
         keyboard.press(functionKeys[int(key)-1])
         keyboard.release_all()
         time.sleep(0.1)
+
+    #Programming Shortcuts
+    if mode == 3:
+        if int(key) == 1:
+            keyboard.press(Keycode.CONTROL, Keycode.C)
+            keyboard.release_all()
+        if int(key) == 2:
+            keyboard.press(Keycode.CONTROL, Keycode.X)
+            keyboard.release_all()
+        if int(key) == 3:
+            keyboard.press(Keycode.CONTROL, Keycode.V)
+            keyboard.release_all()
+
+        if int(key) == 4:
+            keyboard_layout.write("(")
+            keyboard.release_all()
+
+        if int(key) == 5:
+            keyboard_layout.write("()")
+            keyboard.release_all()
+            keyboard.press(Keycode.LEFT_ARROW)
+            keyboard.release_all()
+
+        if int(key) == 6:
+            keyboard_layout.write(")")
+            keyboard.release_all()
+
+        if int(key) == 7:
+            keyboard_layout.write("[")
+            keyboard.release_all()
+
+        if int(key) == 8:
+            keyboard_layout.write("[]")
+            keyboard.release_all()
+            keyboard.press(Keycode.LEFT_ARROW)
+            keyboard.release_all()
+
+        if int(key) == 9:
+            keyboard_layout.write("]")
+            keyboard.release_all()
+
+        if int(key) == 10:
+            keyboard.press(Keycode.CONTROL, Keycode.S)
+            keyboard.release_all()
+        time.sleep(0.1)
+
+    #Utility mode
+    if mode == 4:
+        if int(key) == 1:
+            if shiftLock:
+                keyboard.release_all()
+                shiftLock = False
+                led4.value = False
+                led5.value = False
+                led6.value = False
+            else:
+                keyboard.press(Keycode.SHIFT)
+                shiftLock = True
+                led4.value = True
+                led5.value = True
+                led6.value = True
+        if int(key) == 2:
+            if ctlLock:
+                keyboard.release_all()
+                ctlLock = False
+                led1.value = False
+                led2.value = False
+                led3.value = False
+            else:
+                keyboard.press(Keycode.CONTROL)
+                ctlLock = True
+                led1.value = True
+                led2.value = True
+                led3.value = True
+
 
     #Led Test Mode
     if mode == 10:
@@ -112,13 +202,21 @@ for led in leds_List:
 mode = 1
 count = 0
 
+
 #Main Program Loop
 while True:
 
     #Checks for button presses
     for btn in btns_List:
         if not btn.value:
-            keyPress(str(btns_List.index(btn) + 1))
+            #Checks to see if key is being held to present unwanted extra key strokes.
+            if (btnHold[btns_List.index(btn)] < 1 or btnHold[btns_List.index(btn)] > 1500):
+                keyPress(str(btns_List.index(btn) + 1))
+            btnHold[btns_List.index(btn)] += 1
+        else:
+            btnHold[btns_List.index(btn)] = 0
+
+
 
 
     #Checks for function button presses
